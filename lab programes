@@ -1,0 +1,227 @@
+UNINFORMED (BFS DFS ITFS)
+
+def bfs(g, start):
+    visited = set()
+    queue = deque([start])
+    while queue:
+        node = queue.popleft()
+        if node not in visited:
+            print(node)
+            visited.add(node)
+            for n in g[node]:
+                if n not in visited:
+                    queue.append(n)
+g = {
+    'A': ['B', 'C'],
+    'B': ['A', 'D', 'E'],
+    'C': ['A', 'E'],
+    'D': ['B', 'F'],
+    'E': ['B', 'C'],
+    'F': ['D']
+}
+
+bfs(g, 'A')
+def dfs(g, start):
+    v = set()
+    stack = [start]
+
+    while stack:
+        node = stack.pop()
+        if node not in v:
+            print(node)
+            v.add(node)
+            for n in reversed(g[node]):
+                if n not in v:
+                    stack.append(n)
+
+# Example usage:
+g = {
+    'A': ['B', 'C'],
+    'B': ['A', 'D', 'E'],
+    'C': ['A', 'E'],
+    'D': ['B', 'F'],
+    'E': ['B', 'C'],
+    'F': ['D']
+}
+
+dfs(g, 'A')
+def dfs_limited(g, start, d_limit):
+    v = set()
+    stack = [(start, 0)]
+
+    while stack:
+        node, d = stack.pop()
+        if d > d_limit:
+            continue
+        if node not in v:
+            print(node)
+            v.add(node)
+            for n in reversed(g[node]):
+                if n not in v:
+                    stack.append((n, d + 1))
+
+def iddfs(g, start, max_d):
+    for d in range(max_d + 1):
+        print(f"Depth limit: {d}")
+        dfs_limited(g, start, d)
+        print("---")
+
+g = {
+    'A': ['B', 'C'],
+    'B': ['A', 'D', 'E'],
+    'C': ['A', 'E'],
+    'D': ['B', 'F'],
+    'E': ['B', 'C'],
+    'F': ['D']
+}
+
+iddfs(g, 'A', 3)
+INFORMED (A*,BEST FS)
+from heapq import heappop, heappush
+def h(n, g):
+    return 0
+def a_star(graph, s, g):
+    v = set()
+    q = [(0, s, [s])]
+    while q:
+        c, n, p = heappop(q)
+        if n in v:
+            continue
+        v.add(n)
+
+        if n == g:
+            print("Path found:", p)
+            return p
+
+        for nbr in graph[n]:
+            if nbr not in v:
+                new_c = c + 1
+                h_c = new_c + h(nbr, g)
+                heappush(q, (h_c, nbr, p + [nbr]))
+    print("No path found")
+    return None
+graph = {
+    'A': ['B', 'C'],
+    'B': ['A', 'D', 'E'],
+    'C': ['A', 'E'],
+    'D': ['B', 'F'],
+    'E': ['B', 'C'],
+    'F': ['D']
+}
+
+a_star(graph, 'A', 'F')
+from heapq import heappop, heappush
+
+def h(n, g):
+    return 0
+
+def best_first_search(graph, s, g):
+    v = set()
+    q = [(h(s, g), s, [s])]
+
+    while q:
+        h_c, n, p = heappop(q)
+            continue
+        v.add(n)
+        if n == g:
+            print("Path found:", p)
+            return p
+
+        for nbr in graph[n]:
+            if nbr not in v:
+                heappush(q, (h(nbr, g), nbr, p + [nbr]))
+    print("No path found")
+    return None
+graph = {
+    'A': ['B', 'C'],
+    'B': ['A', 'D', 'E'],
+    'C': ['A', 'E'],
+    'D': ['B', 'F'],
+    'E': ['B', 'C'],
+    'F': ['D']
+}
+
+best_first_search(graph, 'A', 'F')
+Adversal search techniques(Alpha-beta,Min-Max)
+import math
+
+def alpha_beta(n, depth, a, b, is_max, tree):
+    if depth == 0 or n not in tree:
+        return n
+
+    if is_max:
+        max_val = -math.inf
+        for child in tree[n]:
+            val = alpha_beta(child, depth - 1, a, b, False, tree)
+            max_val = max(max_val, val)
+            a = max(a, val)
+            if b <= a:
+                break
+        return max_val
+    else:
+        min_val = math.inf
+        for child in tree[n]:
+            val = alpha_beta(child, depth - 1, a, b, True, tree)
+            min_val = min(min_val, val)
+            b = min(b, val)
+            if b <= a:
+                break
+        return min_val
+tree = {
+    'A': ['B', 'C'],
+    'B': ['D', 'E'],
+    'C': ['F', 'G'],
+    'D': [3, 5],
+    'E': [6, 9],
+    'F': [1, 2],
+    'G': [0, -1]
+}
+result = alpha_beta('A', 3, -math.inf, math.inf, True, tree)
+print("The optimal value is:", result)
+import math
+from collections import deque
+
+def minimax(n, d, is_max, g, scores, vis):
+    if d == 0 or n not in g:
+        return scores.get(n, 0)
+
+    if is_max:
+        max_eval = -math.inf
+        for neighbor in g[n]:
+            if neighbor not in vis:
+                vis.add(neighbor)
+                eval = minimax(neighbor, d - 1, False, g, scores, vis)
+                max_eval = max(max_eval, eval)
+                vis.remove(neighbor)
+        return max_eval
+    else:
+        min_eval = math.inf
+        for neighbor in g[n]:
+            if neighbor not in vis:
+                vis.add(neighbor)
+                eval = minimax(neighbor, d - 1, True, g, scores, vis)
+                min_eval = min(min_eval, eval)
+                vis.remove(neighbor)
+        return min_eval
+
+
+g = {
+    'A': ['B', 'C'],
+    'B': ['A', 'D', 'E'],
+    'C': ['A', 'E'],
+    'D': ['B', 'F'],
+    'E': ['B', 'C'],
+    'F': ['D']
+}
+scores = {
+    'A': 0,
+    'B': 3,
+    'C': 5,
+    'D': 6,
+    'E': 9,
+    'F': 1
+}
+start_node = 'A'
+depth = 3
+result = minimax(start_node, depth, True, g, scores, set([start_node]))
+print(f"The optimal value starting from {start_node} is: {result}")
